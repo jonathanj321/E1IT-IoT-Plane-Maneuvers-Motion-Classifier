@@ -1,0 +1,19 @@
+# Build folders
+/Debug/
+/Release/
+
+# IDE-specific files
+/.settings/
+/.project
+.cproject
+*.launch
+
+# Compiled binaries
+*.elf
+*.hex
+*.bin
+
+# Optional: user settings
+*.dep
+*.map
+
