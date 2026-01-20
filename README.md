@@ -1,114 +1,33 @@
-## <b>BSP Example Description</b>
+## <b>Airplane Maneuvers Motion Classifier</b>
 
-How to use the different BSP drivers of the board.
+Training is done to log the following flying maneuvers which are a sequence of 5 movements:
 
-This project is targeted to run on STM32U585xx devices on B_U585I_IOT02A board from STMicroelectronics.
+1. Descending right turn and level off: right-forward diagonal, left, back to neutral, back, forward
+2. Ascending left turn and level off: back, left, right to neutral, forward, back to neutral
+3. S turn into climb: left-back diagonal, right-forward diagonal , right-back diagonal, left, forward to neutral
+4. Steep turn: right-back diagonal, left, forward-left diagonal, back, right to neutral
+5. Right traffic pattern from takeoff: back, forward to neutral, right, left to neutral, forward
+6. Left traffic pattern from landing: forward, back to neutral, left-back diagonal, right, forward to neutral
 
-The project configures the maximum system clock frequency at 160Mhz.
+Then, these maneuvers are presented to the user in a random order and the user is asked to
+perform them. Successful execution of each maneuver will result in a confirmation that the inputs
+matched expected inputs. If the maneuver isn’t recognized, it will prompt the user to try again, or if
+the user accidentally performed the wrong movement, it will tell the user that they performed the
+wrong maneuver.
 
-This example shows how to use the different functionalities of components available on the board.
+Data was acquired by performing 5 features for each of the 6 motions. If the velocity of the device
+exceeded a certain threshold, feature 1 was set to the x axis velocity and feature 2 was set to the y axis
+velocity.
 
-Red LED toggles every 500ms whenever any error is detected.
-
-It uses the Terminal I/O to display information : 
-
- - When resorting to EWARM IAR IDE:
-   Command Code is displayed on debugger as follows: View --> Terminal I/O
-
- - When resorting to MDK-ARM KEIL IDE:
-   Command Code is displayed on debugger as follows: View --> Serial Windows --> Debug (printf) Viewer
- 
- - When resorting to STM32CubeIDE:
-   In Debug configuration window\ Startup, in addition to "monitor reset halt" add the command "monitor arm semihosting enable"
-   Command Code is displayed on debugger as follows: Window--> Show View--> Console.
-   
-At the beginning, the example waits until the User Button is pressed. Once 
-this is done, it goes to run the following tests:
-
- ** Button ** 
-Press User push-button to start the following test:
-
- ** LED **
-This example shows how to switch on, switch off and toggle all leds.
-
- ** RANGING SENSOR **
-This example shows how to use the Time-of-Flight 8x8 multizone ranging sensor.
-
- ** CAMERA **
-This example shows how to use BSP drivers to test the camera.
-
- ** OSPI NOR **
-This example shows how to erase, write and read data available on the Octal Flash memory
-available on the board. (STR and DTR in Normal mode and MemoryMapped)
-
- ** OSPI RAM **
-This example shows how to write and read data available on the Octal Sram memory
-available on the board. (Normal mode and MemoryMapped)
-
- ** AUDIO RECORD **
-This example will record sound via digital microphones on the board (U6/U7).
-
- ** MOTION SENSOR **
-This example shows how to use the accelerometer and gyroscope of the motion sensor.
-
- ** ENVIRONMENTAL SENSOR **
-This example shows how to use the temperature, humidity and pressure of the environmental sensor.
-
- ** EEPROM **
-This example shows how to read and write data usint the EEPROM I2C M24256(U22)
-
-#### <b>Notes</b>
-
- 1. Before running the OSPI demo make sure that the camera module is not mounted on the board.
-
- 2. Care must be taken when using HAL_Delay(), this function provides accurate delay (in milliseconds)
-      based on variable incremented in SysTick ISR. This implies that if HAL_Delay() is called from
-      a peripheral ISR process, then the SysTick interrupt must have higher priority (numerically lower)
-      than the peripheral interrupt. Otherwise the caller ISR process will be blocked.
-      To change the SysTick interrupt priority you have to use HAL_NVIC_SetPriority() function.
-
- 3. The application need to ensure that the SysTick time base is always set to 1 millisecond
-      to have correct HAL operation.
-
-### <b>Directory contents</b>
-
-  - BSP/Src/audio_record.c         AUDIO RECORD features
-  - BSP/Src/camera.c               CAMERA features
-  - BSP/Src/eeprom.c               EEPROM feature
-  - BSP/Src/led.c                  Led display features
-  - BSP/Src/main.c                 Main program
-  - BSP/Src/button.c               Button feature
-  - BSP/Src/motion_sensor.c        Motion sensor features
-  - BSP/Src/env_sensor.c           Env sensor features
-  - BSP/Src/ospi_nor.c             OSPI NOR features
-  - BSP/Src/ospi_ram.c             OSPI RAM features
-  - BSP/Src/stm32u5xx_hal_msp.c    HAL MSP module
-  - BSP/Src/system_stm32u5xx.c     STM32U5xx system clock configuration file
-  - BSP/Src/stm32u5xx_it.c         Interrupt handlers
-  - BSP/Inc/main.h                 Main program header file
-  - BSP/Inc/stm32u5xx_hal_conf.h   HAL Configuration file
-  - BSP/Inc/b_u585i_iot02_conf.h   Board Configuration file
-  - BSP/Inc/stm32u5xx_it.h         Interrupt handlers header file
-  - BSP/Inc/mx25lm51245g_conf.h    OSPI NOR memory configuration file
-  - BSP/Inc/aps6408_conf.h         OSPI SRAM memory configuration file
-
-### <b>Keywords</b>
-
-BSP, Led, Button, Camera, Env sensor, Audio, Motion sensor, OSPI 
-
-### <b>Hardware and Software environment</b>  
-
-  - This example runs on STM32U585xx devices without security enabled (TZEN=0).
-
-  - This example has been tested with STMicroelectronics B_U585I_IOT02A (MB1551)
-    board and can be easily tailored to any other supported device
-    and development board.
-  
-### <b>How to use it ?</b>
-
-In order to make the program work, you must do the following :
-
- - Open your preferred toolchain
- - Rebuild all files and load your image into target memory
- - Run the example
-
+The velocity was obtained by integrating the accelerometer output once over time with the following
+approximations:
+• Errors can occur if the device is not level, as the acceleration
+due to gravity will be projected onto the x and y axes causing
+an inaccurate accelerometer reading
+• High pass filters remove static acceleration from an angle
+deviation from level that is static
+• Low pass filters remove high frequency noise associated with
+varying friction forces
+• This gets passed to the softmax function and neural network
+which classifies the sequence of movements as a specific
+motion
