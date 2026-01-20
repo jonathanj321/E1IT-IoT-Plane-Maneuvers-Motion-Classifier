@@ -21,13 +21,8 @@ velocity.
 
 The velocity was obtained by integrating the accelerometer output once over time with the following
 approximations:
-• Errors can occur if the device is not level, as the acceleration
-due to gravity will be projected onto the x and y axes causing
-an inaccurate accelerometer reading
-• High pass filters remove static acceleration from an angle
-deviation from level that is static
-• Low pass filters remove high frequency noise associated with
-varying friction forces
-• This gets passed to the softmax function and neural network
-which classifies the sequence of movements as a specific
-motion
+- Errors can occur if the device is not level, as the acceleration due to gravity will be projected onto the x and y axes, causing inaccurate readings.
+- High-pass filters remove static acceleration from an angle deviation from level that is static.
+- Low-pass filters remove high-frequency noise associated with varying friction forces.
+- The processed data is passed to a softmax function and neural network, which classifies the sequence of movements as a specific motion.
+
